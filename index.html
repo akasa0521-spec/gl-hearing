@@ -1,0 +1,90 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GL ヒアリング</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+:root{--bg:#F5F2EC;--sur:#fff;--ink:#121A26;--mute:#6B7280;--line:#E6E1D8;--pri:#1e3a4c;--gold:#D4A63B;--gold2:#F1D68A;--neg:#C8432B}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 "Noto Sans JP",-apple-system,"Hiragino Sans",sans-serif;display:grid;place-items:center;-webkit-font-smoothing:antialiased}
+.gate{width:min(360px,92vw);background:var(--sur);border:1px solid var(--line);border-radius:16px;padding:26px 26px 22px;box-shadow:0 8px 30px rgba(30,58,76,.08)}
+.mark{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold2),var(--gold));display:grid;place-items:center;color:var(--pri);font-weight:900;font-size:16px;margin-bottom:12px}
+h1{font-size:16px;margin:0 0 4px;color:var(--pri)}
+p{margin:0 0 14px;color:var(--mute);font-size:12.5px}
+label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;color:var(--pri)}
+input{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:15px inherit;font-family:inherit;background:#FBFAF7;color:var(--ink);outline:none}
+input:focus{border-color:var(--pri);background:#fff}
+button{margin-top:12px;width:100%;border:0;border-radius:999px;background:var(--pri);color:#fff;font:700 14px inherit;font-family:inherit;padding:11px;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.msg{min-height:1.4em;font-size:12.5px;color:var(--neg);margin-top:10px}
+.wait{color:var(--mute)}
+.fine{color:var(--mute);font-size:11px;margin-top:14px;text-align:center}
+</style></head><body>
+<form class="gate" id="gate" hidden>
+ <div class="mark">GL</div>
+ <h1>GL ヒアリング</h1>
+ <p>合言葉を入れると画面が開きます。この端末では次から不要です。</p>
+ <label for="pass">合言葉</label>
+ <input id="pass" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" required>
+ <button type="submit" id="go">開く</button>
+ <div class="msg" id="msg"></div>
+ <div class="fine">Good Luck</div>
+</form>
+<div class="wait" id="wait">読み込み中…</div>
+<script>
+(function(){
+ 'use strict';
+ var KEY='glh_key'; // 合言葉から導いた鍵（raw, base64）。合言葉そのものは保存しない
+ var PORTERS='https://hrbc-jp.porterscloud.com';
+ var gate=document.getElementById('gate'), wait=document.getElementById('wait'), msg=document.getElementById('msg'), pass=document.getElementById('pass'), go=document.getElementById('go');
+ var payload=null;
+ function b2u(b){ var s=atob(b), u=new Uint8Array(s.length); for(var i=0;i<s.length;i++) u[i]=s.charCodeAt(i); return u; }
+ function u2b(u){ var s=''; u=new Uint8Array(u); for(var i=0;i<u.length;i++) s+=String.fromCharCode(u[i]); return btoa(s); }
+ function showGate(t){ wait.hidden=true; gate.hidden=false; msg.textContent=t||''; go.disabled=false; setTimeout(function(){ pass.focus(); },50); }
+ function embedded(){ // PORTERS の中の iframe か
+  var inFrame=false; try{ inFrame=(window.top!==window); }catch(e){ inFrame=true; }
+  return inFrame && (document.referrer||'').indexOf(PORTERS+'/')===0;
+ }
+ function render(html){
+  if(!embedded()){
+   var bar='<script>(function(){var b=document.createElement("div");b.textContent="PORTERSの中で開くと書き込みが使えます";b.style.cssText="background:#D4A63B;color:#1e3a4c;font:700 12px/1.4 -apple-system,\'Hiragino Sans\',\'Noto Sans JP\',sans-serif;text-align:center;padding:4px 12px";var t=document.querySelector(".top");if(t)t.insertBefore(b,t.firstChild);else document.body.insertBefore(b,document.body.firstChild);})();<\/script>';
+   var i=html.lastIndexOf('</body>'); html=i>=0?html.slice(0,i)+bar+html.slice(i):html+bar;
+  }
+  document.open(); document.write(html); document.close();
+ }
+ function decryptWith(key){
+  return crypto.subtle.decrypt({name:'AES-GCM',iv:b2u(payload.iv)},key,b2u(payload.ct)).then(function(buf){ return new TextDecoder().decode(buf); });
+ }
+ function keyFromPass(p){
+  var enc=new TextEncoder();
+  return crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveKey']).then(function(km){
+   return crypto.subtle.deriveKey({name:'PBKDF2',salt:b2u(payload.salt),iterations:payload.iter||300000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},true,['decrypt']);
+  });
+ }
+ function keyFromStore(){
+  var b=null; try{ b=localStorage.getItem(KEY); }catch(e){}
+  if(!b) return Promise.resolve(null);
+  return crypto.subtle.importKey('raw',b2u(b),{name:'AES-GCM'},false,['decrypt']).catch(function(){ return null; });
+ }
+ function start(){
+  fetch('payload.json',{cache:'no-store'}).then(function(r){ if(!r.ok) throw new Error('payload '+r.status); return r.json(); }).then(function(p){
+   payload=p;
+   return keyFromStore().then(function(k){
+    if(!k) return showGate('');
+    return decryptWith(k).then(render,function(){ try{ localStorage.removeItem(KEY); }catch(e){} showGate('合言葉が変わりました。もう一度入れてください'); });
+   });
+  }).catch(function(){ wait.textContent='画面を読み込めませんでした。しばらくして開き直してください'; });
+ }
+ gate.addEventListener('submit',function(ev){
+  ev.preventDefault(); var p=pass.value; if(!p) return;
+  go.disabled=true; msg.textContent='確認中…'; msg.style.color='';
+  keyFromPass(p).then(function(key){
+   return decryptWith(key).then(function(html){
+    return crypto.subtle.exportKey('raw',key).then(function(raw){ try{ localStorage.setItem(KEY,u2b(raw)); }catch(e){} render(html); });
+   });
+  }).catch(function(){ msg.style.color=''; pass.value=''; showGate('合言葉が違います'); });
+ });
+ if(!window.crypto||!crypto.subtle){ wait.textContent='このブラウザでは開けません（https で開いてください）'; return; }
+ start();
+})();
+</script>
+</body></html>
