@@ -46,7 +46,7 @@ button:disabled{opacity:.5;cursor:default}
  }
  function render(html){
   if(!embedded()){
-   var bar='<script>(function(){var b=document.createElement("div");b.textContent="PORTERSの中で開くと書き込みが使えます";b.style.cssText="background:#D4A63B;color:#1e3a4c;font:700 12px/1.4 -apple-system,\'Hiragino Sans\',\'Noto Sans JP\',sans-serif;text-align:center;padding:4px 12px";var t=document.querySelector(".top");if(t)t.insertBefore(b,t.firstChild);else document.body.insertBefore(b,document.body.firstChild);})();<\/script>';
+   var bar='<script>(function(){var b=document.createElement("div");b.textContent="PORTERSの中で開くと書き込みが使えます";b.style.cssText="background:linear-gradient(90deg,#EEF2FB,#F7EDF2);color:#2B3A55;border-bottom:1px solid rgba(43,58,85,.08);font:600 12px/1.4 -apple-system,\'Hiragino Sans\',\'Noto Sans JP\',sans-serif;text-align:center;padding:4px 12px";var t=document.querySelector(".top");if(t)t.insertBefore(b,t.firstChild);else document.body.insertBefore(b,document.body.firstChild);})();<\/script>';
    var i=html.lastIndexOf('</body>'); html=i>=0?html.slice(0,i)+bar+html.slice(i):html+bar;
   }
   document.open(); document.write(html); document.close();
