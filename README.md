@@ -26,3 +26,15 @@ Chrome拡張「GL ヒアリング」が PORTERS の上に出す板の中身（�
 ## 拡張側との関係
 - 拡張の `content.js` は `REMOTE_URL='https://akasa0521-spec.github.io/gl-hearing/'` を iframe で開き、`SITE_ORIGIN` からの postMessage だけ受ける
 - 画面の中（bridge.js）は `https://hrbc-jp.porterscloud.com` へだけ postMessage する。単体で開くと「PORTERSの中で開くと書き込みが使えます」の帯が出る（下見用）
+
+## 求職者向けページ（この人向けページを作る）
+
+ヒアリング画面の「近くの施設」→ 起点の住所で探す → 「この人の職種」を選ぶ → 「この人向けページを作る」。`おすすめ求人.json` が落ちるので、
+
+```bash
+node publish_seeker.mjs ~/Downloads/おすすめ求人.json
+```
+
+で公開され、長いURLが出る（合言葉なし・推測不可）。そのURLを求職者に送る。消すときは `~/Downloads/gl-recommend-repo/r/<slug>/` を削除して push。
+施設の写真を載せる：`node add_facility_photo.mjs <施設名> <写真…>`。
+作法・事故の記録・データの作り直し方は `_盤/93_CRM/93-077_求職者向けページの掟.md`。
