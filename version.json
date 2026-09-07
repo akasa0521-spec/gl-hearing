@@ -1,1 +1,1 @@
-{"ext": "0.3.16", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "相手の名前と電話番号を、開いている詳細パネルから拾う（3秒ごとに追従）"}
+{"ext": "0.3.17", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "見出しが分かれていても相手の名前を拾う"}
