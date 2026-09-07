@@ -1,1 +1,1 @@
-{"ext": "0.3.13", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "📞の位置ずれ（編集画面を開いたとき）を修正"}
+{"ext": "0.3.14", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "📞を番号の左に（隣の列に被らない）"}
