@@ -1,1 +1,1 @@
-{"ext": "0.3.15", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "板の上に相手の電話番号（押すとかける）"}
+{"ext": "0.3.16", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "相手の名前と電話番号を、開いている詳細パネルから拾う（3秒ごとに追従）"}
