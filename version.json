@@ -1,1 +1,1 @@
-{"ext": "0.3.20", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "詳細パネルが上に開いたら、下の一覧の📞は描かない"}
+{"ext": "0.3.21", "zip": "https://akasa0521-spec.github.io/gl-hearing/ext.zip", "note": "一覧が0件なら左の「すべての◯◯」を自動で押す"}
